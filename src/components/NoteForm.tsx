@@ -1,0 +1,94 @@
+import { FormEvent, useRef, useState } from "react";
+import { Button, Col, Form, Row, Stack } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import CreatableReactSelect from "react-select/creatable";
+import { NoteData, Tag } from "../types/types";
+import { v4 as uuidV4 } from "uuid";
+
+type NoteFromProps = {
+	onSubmit: (data: NoteData) => void;
+	onAddTag: (data: Tag) => void;
+	availableTags: Tag[];
+};
+
+const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFromProps) => {
+	const navigate = useNavigate();
+
+	const titleRef = useRef<HTMLInputElement>(null);
+	const markdownRef = useRef<HTMLTextAreaElement>(null);
+
+	const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
+	const handleSubmit = (e: FormEvent) => {
+		e.preventDefault();
+
+		onSubmit({
+			title: titleRef.current!.value,
+			markdown: markdownRef.current!.value,
+			tags: selectedTags,
+		});
+	};
+
+	return (
+		<Form onSubmit={handleSubmit}>
+			<Stack gap={4}>
+				<Row>
+					<Col>
+						<Form.Group controlId="title">
+							<Form.Label>Title</Form.Label>
+							<Form.Control ref={titleRef} required />
+						</Form.Group>
+					</Col>
+					<Col>
+						<Form.Group controlId="tags">
+							<Form.Label>Tags</Form.Label>
+							<CreatableReactSelect
+								isMulti
+								value={selectedTags?.map((tag) => {
+									return { label: tag.label, value: tag.id };
+								})}
+								options={availableTags?.map((tag) => {
+									return { label: tag.label, value: tag.id };
+								})}
+								onCreateOption={(label) => {
+									const newTag = { id: uuidV4(), label };
+									onAddTag(newTag);
+									setSelectedTags((prevTags) => [...prevTags, newTag]);
+								}}
+								onChange={(tags) => {
+									setSelectedTags(
+										tags.map((tag) => {
+											return { label: tag.label, id: tag.value };
+										})
+									);
+								}}
+							/>
+						</Form.Group>
+					</Col>
+				</Row>
+				<Form.Group>
+					<Form.Group controlId="markdown">
+						<Form.Label>Body</Form.Label>
+						<Form.Control ref={markdownRef} required as="textarea" rows={15} />
+					</Form.Group>
+				</Form.Group>
+			</Stack>
+			<Stack
+				direction="horizontal"
+				gap={2}
+				className="justify-content-end mt-4"
+			>
+				<Button
+					onClick={() => navigate(-1)}
+					type="button"
+					variant="outline-secondary"
+				>
+					Cancel
+				</Button>
+				<Button type="submit">Save</Button>
+			</Stack>
+		</Form>
+	);
+};
+
+export default NoteForm;
