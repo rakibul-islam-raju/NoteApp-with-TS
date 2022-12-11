@@ -1,8 +1,8 @@
 import { useOutletContext } from "react-router-dom";
 import { Note } from "../types/types";
 
-const UseNote = () => {
+const useNote = () => {
 	return useOutletContext<Note>();
 };
 
-export default UseNote;
+export default useNote;

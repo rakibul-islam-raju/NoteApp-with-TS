@@ -3,17 +3,26 @@ import { Button, Col, Row, Stack, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import ReactSelect from "react-select";
 import { Note, Tag } from "../types/types";
+import EditTagModal from "./EditTagModal";
 import { NoteCard } from "./NoteCard";
 
 type NoteListProps = {
 	availableTags: Tag[];
 	notes: Note[];
+	onDeleteTag: (id: string) => void;
+	onUpdateTag: (id: string, label: string) => void;
 };
 
-const NoteList = ({ availableTags, notes }: NoteListProps) => {
+const NoteList = ({
+	availableTags,
+	notes,
+	onDeleteTag,
+	onUpdateTag,
+}: NoteListProps) => {
 	const navigate = useNavigate();
 
 	const [title, setTitle] = useState("");
+	const [show, setShow] = useState(false);
 
 	const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
@@ -44,7 +53,7 @@ const NoteList = ({ availableTags, notes }: NoteListProps) => {
 						<Button
 							variant="outline-secondary"
 							type="button"
-							onClick={() => {}}
+							onClick={() => setShow(true)}
 						>
 							Edit Tags
 						</Button>
@@ -100,6 +109,14 @@ const NoteList = ({ availableTags, notes }: NoteListProps) => {
 					</Col>
 				))}
 			</Row>
+
+			<EditTagModal
+				show={show}
+				handleClose={() => setShow(false)}
+				availableTags={availableTags}
+				onDeleteTag={onDeleteTag}
+				onUpdateTag={onUpdateTag}
+			/>
 		</>
 	);
 };
